@@ -9,6 +9,7 @@ import {
 import { Op } from 'sequelize';
 import Meetup from '../models/Meetup';
 import User from '../models/User';
+import File from '../models/File';
 
 class MeetupController {
   async index(req, res) {
@@ -111,15 +112,32 @@ class MeetupController {
       }
     }
 
-    const { title, description, location, date } = await meetup.update(
-      req.body
-    );
+    await meetup.update(req.body);
+
+    const {
+      title,
+      description,
+      location,
+      date,
+      banner_id,
+      banner,
+    } = await Meetup.findByPk(req.params.meetupId, {
+      include: [
+        {
+          model: File,
+          as: 'banner',
+          attributes: ['name', 'path', 'url'],
+        },
+      ],
+    });
 
     return res.json({
       title,
       description,
       location,
       date,
+      banner_id,
+      banner,
     });
   }
 

@@ -3,19 +3,20 @@ import File from '../models/File';
 
 class OrganizedController {
   async index(req, res) {
-    const meetup = await Meetup.findAll({
+    const meetups = await Meetup.findAll({
       where: { user_id: req.userId },
+      attributes: ['id', 'title', 'description', 'date', 'location'],
       include: [
         {
           model: File,
           as: 'banner',
-          attributes: ['name', 'path', 'url'],
+          attributes: ['id', 'name', 'path', 'url'],
         },
       ],
       order: [['date', 'DESC']],
     });
 
-    return res.json(meetup);
+    return res.json(meetups);
   }
 }
 
