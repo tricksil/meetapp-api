@@ -3,6 +3,7 @@ import { Op } from 'sequelize';
 
 import Meetup from '../models/Meetup';
 import User from '../models/User';
+import File from '../models/File';
 import Queue from '../../lib/Queue';
 import SubscriptionMail from '../jobs/SubscriptionMail';
 
@@ -14,6 +15,7 @@ class SubscribeController {
           [Op.gt]: new Date(),
         },
       },
+      attributes: ['id', 'title', 'description', 'date', 'location'],
       order: ['date'],
       include: [
         {
@@ -28,6 +30,11 @@ class SubscribeController {
             id: req.userId,
           },
           attributes: [],
+        },
+        {
+          model: File,
+          as: 'banner',
+          attributes: ['url', 'name', 'path'],
         },
       ],
     });
@@ -109,6 +116,22 @@ class SubscribeController {
       meetup,
       userName: user.name,
     });
+
+    return res.json(meetup);
+  }
+
+  async delete(req, res) {
+    const { meetupId } = req.params;
+    const { userId } = req;
+    const meetup = await Meetup.findByPk(meetupId);
+
+    const usersAux = meetup.getUsers();
+
+    const users = usersAux.filter(userF => userF.id !== userId);
+
+    meetup.setUsers(users);
+
+    await meetup.save();
 
     return res.json(meetup);
   }

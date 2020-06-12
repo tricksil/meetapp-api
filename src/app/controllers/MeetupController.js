@@ -24,11 +24,17 @@ class MeetupController {
       order: ['date'],
       limit: 10,
       offset: (page - 1) * 10,
+      attributes: ['id', 'title', 'description', 'date', 'location'],
       include: [
         {
           model: User,
           as: 'organizer',
           attributes: ['id', 'name', 'email'],
+        },
+        {
+          model: File,
+          as: 'banner',
+          attributes: ['id', 'name', 'path', 'url'],
         },
       ],
     });
@@ -119,14 +125,13 @@ class MeetupController {
       description,
       location,
       date,
-      banner_id,
       banner,
     } = await Meetup.findByPk(req.params.meetupId, {
       include: [
         {
           model: File,
           as: 'banner',
-          attributes: ['name', 'path', 'url'],
+          attributes: ['id', 'name', 'path', 'url'],
         },
       ],
     });
@@ -136,7 +141,6 @@ class MeetupController {
       description,
       location,
       date,
-      banner_id,
       banner,
     });
   }
